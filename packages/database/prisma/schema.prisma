@@ -1,0 +1,192 @@
+// Prompt Maestro — Database Schema
+// PostgreSQL + Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String     @id @default(cuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole   @default(bartender)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  comandas     Comanda[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  admin
+  supervisor
+  bartender
+}
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+
+model Product {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  shortName      String
+  category       ProductCategory
+  unit           String          @default("pieza")
+  aliases        String[]
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  inventoryItems InventoryItem[]
+  comandaItems   ComandaItem[]
+  orderItems     OrderItem[]
+  movements      Movement[]
+
+  @@index([category])
+  @@index([isActive])
+  @@map("products")
+}
+
+enum ProductCategory {
+  refrescos
+  aguas
+  cervezas
+  licores
+  jugos
+  mixers
+  otros
+}
+
+// ─── Weeks ────────────────────────────────────────────────────────────────────
+
+model Week {
+  id             String          @id @default(cuid())
+  startDate      DateTime
+  endDate        DateTime
+  status         WeekStatus      @default(open)
+  createdAt      DateTime        @default(now())
+  inventoryItems InventoryItem[]
+  comandas       Comanda[]
+  orders         Order[]
+  movements      Movement[]
+
+  @@index([status])
+  @@index([startDate])
+  @@map("weeks")
+}
+
+enum WeekStatus {
+  open
+  closed
+}
+
+// ─── Inventory Items ──────────────────────────────────────────────────────────
+
+model InventoryItem {
+  id             String   @id @default(cuid())
+  weekId         String
+  week           Week     @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  initialStock   Int      @default(0)
+  purchasedStock Int      @default(0)
+  finalStock     Int?
+  consumed       Int      @default(0) // computed: initialStock + purchasedStock - currentStock
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([weekId, productId])
+  @@index([weekId])
+  @@index([productId])
+  @@map("inventory_items")
+}
+
+// ─── Comandas ─────────────────────────────────────────────────────────────────
+
+model Comanda {
+  id          String        @id @default(cuid())
+  weekId      String
+  week        Week          @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  date        DateTime      @default(now())
+  createdById String
+  createdBy   User          @relation(fields: [createdById], references: [id])
+  note        String?
+  items       ComandaItem[]
+  createdAt   DateTime      @default(now())
+
+  @@index([weekId])
+  @@index([date])
+  @@map("comandas")
+}
+
+model ComandaItem {
+  id        String  @id @default(cuid())
+  comandaId String
+  comanda   Comanda @relation(fields: [comandaId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+
+  @@index([comandaId])
+  @@index([productId])
+  @@map("comanda_items")
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+
+model Order {
+  id          String      @id @default(cuid())
+  weekId      String
+  week        Week        @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  confirmedAt DateTime    @default(now())
+  reason      String?
+  items       OrderItem[]
+
+  @@index([weekId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity    Int
+  recommended Int
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ─── Movements ────────────────────────────────────────────────────────────────
+
+model Movement {
+  id          String       @id @default(cuid())
+  weekId      String
+  week        Week         @relation(fields: [weekId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type        MovementType
+  quantity    Int
+  date        DateTime     @default(now())
+  createdById String
+  note        String?
+
+  @@index([weekId])
+  @@index([productId])
+  @@map("movements")
+}
+
+enum MovementType {
+  entry
+  adjustment
+}
