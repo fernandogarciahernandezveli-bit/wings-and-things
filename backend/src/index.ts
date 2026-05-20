@@ -34,7 +34,13 @@ const allowedOrigins = [
 app.use(helmet())
 app.use(cors({ 
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true)
+    
+    // Acepta cualquier subdominio de vercel.app y las origins exactas
+    const isVercel = origin.endsWith('.vercel.app')
+    const isAllowed = allowedOrigins.includes(origin)
+    
+    if (isVercel || isAllowed) {
       callback(null, true)
     } else {
       callback(new Error('Not allowed by CORS'))
