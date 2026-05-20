@@ -73,6 +73,11 @@ export function Inventory() {
     mutationFn: (data: any) => inventoryApi.updateInitial(data.weekId, data.items),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       addNotification({ type: 'success', message: 'Stock inicial actualizado' })
       setEditItem(null)
     }
@@ -82,6 +87,11 @@ export function Inventory() {
     mutationFn: (data: any) => inventoryApi.updateFinal(data.weekId, data.items),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       addNotification({ type: 'success', message: 'Stock final actualizado' })
       setEditItem(null)
     }
@@ -91,7 +101,11 @@ export function Inventory() {
     mutationFn: (data: any) => inventoryApi.registerEntry(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       addNotification({ type: 'success', message: 'Entrada registrada correctamente' })
       setIsEntryModalOpen(false)
       setEntryForm({ productId: '', quantity: 0, note: '' })

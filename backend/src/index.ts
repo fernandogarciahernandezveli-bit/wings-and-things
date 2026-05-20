@@ -24,8 +24,24 @@ const PORT = process.env.PORT ?? 4000
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[]
+
 app.use(helmet())
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'], credentials: true }))
+app.use(cors({ 
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }, 
+  credentials: true 
+}))
 app.use(express.json({ limit: '1mb' }))
 app.use(morgan('dev'))
 

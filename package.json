@@ -8,13 +8,15 @@
     "backend"
   ],
   "scripts": {
-    "dev:web": "cd apps/web && npm run dev",
-    "dev:backend": "cd backend && npm run dev",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:web\"",
-    "build:web": "cd apps/web && npm run build",
-    "build:backend": "cd backend && npm run build"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "db:generate": "turbo db:generate",
+    "db:deploy": "turbo db:deploy",
+    "build:web": "turbo build --filter=@prompt-maestro/web",
+    "build:backend": "turbo build --filter=@prompt-maestro/backend"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "turbo": "latest"
   }
 }

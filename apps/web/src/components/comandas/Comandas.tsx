@@ -78,7 +78,9 @@ export function Comandas() {
       addNotification({ type: 'success', message: 'Comanda guardada exitosamente' })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      queryClient.invalidateQueries({ queryKey: ['orders'] }) // Added to sync smart orders
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
     },
     onError: (error: any) => {
       addNotification({ 

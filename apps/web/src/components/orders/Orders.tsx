@@ -3,7 +3,7 @@ import { ShoppingCart, Download, CheckSquare, Info, History, AlertCircle } from 
 import { clsx } from 'clsx'
 import { Badge, StatCard, Modal } from '@/components/ui'
 import { useUIStore, useAuthStore } from '@/store'
-import { ordersApi, weeksApi } from '@/lib/api'
+import { ordersApi, weeksApi, productsApi } from '@/lib/api'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { generateOrderPDF } from '@/utils/pdfExport'
@@ -40,21 +40,27 @@ export function Orders() {
   const isSelectedActive = selectedWeek?.status === 'open'
   const activeWeek = useMemo(() => weeks.find((w: any) => w.status === 'open'), [weeks])
 
-  // 2. Fetch recommendations
+  // 2. Fetch products to get unitsPerPackage
+  const { data: products = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: productsApi.getAll
+  })
+
+  // 3. Fetch recommendations
   const { data: recommendations = [], isLoading: loadingRecs } = useQuery({
     queryKey: ['orders', 'recommend', selectedWeekId],
     queryFn: () => ordersApi.getRecommendations(selectedWeekId!),
     enabled: !!selectedWeekId
   })
 
-  // 3. Fetch history
+  // 4. Fetch history
   const { data: history = [], refetch: refetchHistory } = useQuery({
     queryKey: ['orders', 'history', selectedWeekId],
     queryFn: () => ordersApi.getHistory(selectedWeekId!),
     enabled: !!selectedWeekId && view === 'history'
   })
 
-  // 4. Mutations
+  // 5. Mutations
   const confirmOrder = useMutation({
     mutationFn: (data: any) => ordersApi.confirm(data),
     onSuccess: (response) => {
@@ -64,7 +70,10 @@ export function Orders() {
       setIsConfirmModalOpen(false)
       setExtraReason('')
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'history'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       refetchHistory()
     },
     onError: (error: any) => {
@@ -81,12 +90,31 @@ export function Orders() {
     return sum + qty
   }, 0)
 
+  // Get unitsPerPackage for a product
+  const getUnitsPerPackage = (productId: string) => {
+    const product = products.find((p: any) => p.id === productId)
+    return product?.unitsPerPackage || 1
+  }
+
+  // Calculate packages from units
+  const calculatePackages = (units: number, productId: string) => {
+    const unitsPerPackage = getUnitsPerPackage(productId)
+    return Math.ceil(units / unitsPerPackage)
+  }
+
+  // Calculate units from packages
+  const calculateUnits = (packages: number, productId: string) => {
+    const unitsPerPackage = getUnitsPerPackage(productId)
+    return packages * unitsPerPackage
+  }
+
   const itemsToOrder = recommendations.filter((r: any) => (overrides[r.productId] ?? r.recommended) > 0).length
 
   const handleOverride = (id: string, val: string) => {
-    const num = parseInt(val, 10)
-    if (!isNaN(num) && num >= 0) {
-      setOverrides((prev) => ({ ...prev, [id]: num }))
+    const packages = parseInt(val, 10)
+    if (!isNaN(packages) && packages >= 0) {
+      const units = calculateUnits(packages, id)
+      setOverrides((prev) => ({ ...prev, [id]: units }))
     }
   }
 
@@ -224,7 +252,7 @@ export function Orders() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-dark-600/30">
-                  {['Producto', 'Stock actual', 'Consumo', 'Recomendado', 'PEDIR'].map((h) => (
+                  {['Producto', 'Stock actual', 'Consumo', 'Recomendado', 'Paquetes', 'PEDIR (paq)'].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider first:pl-5">
                       {h}
                     </th>
@@ -235,6 +263,8 @@ export function Orders() {
                 {recommendations.map((rec: any) => {
                   const qty = overrides[rec.productId] ?? rec.recommended
                   const isOverridden = overrides[rec.productId] !== undefined
+                  const unitsPerPackage = getUnitsPerPackage(rec.productId)
+                  const packages = calculatePackages(qty, rec.productId)
 
                   return (
                     <tr
@@ -256,14 +286,22 @@ export function Orders() {
                         <span className="text-sm font-mono text-accent">{rec.consumed}</span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-sm font-mono text-dark-200">{rec.recommended}</span>
+                        <span className="text-sm font-mono text-dark-200">{rec.recommended} uds</span>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className={clsx('text-sm font-mono', unitsPerPackage > 1 ? 'text-accent' : 'text-dark-300')}>
+                          {packages} {unitsPerPackage > 1 ? 'paq' : ''}
+                        </span>
+                        {unitsPerPackage > 1 && (
+                          <span className="text-xs text-dark-400 ml-1">({unitsPerPackage} uds/paq)</span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <input
                             type="number"
                             min="0"
-                            value={qty}
+                            value={packages}
                             onChange={(e) => handleOverride(rec.productId, e.target.value)}
                             className={clsx(
                               'w-20 text-center font-mono font-bold text-base rounded-lg px-2 py-1.5 border outline-none transition-all',
@@ -308,7 +346,17 @@ export function Orders() {
                       <p className="text-sm font-bold text-white">Pedido {format(new Date(order.confirmedAt), 'dd/MM/yyyy HH:mm')}</p>
                       {order.reason && <Badge variant="warning">Extraordinario</Badge>}
                     </div>
-                    <p className="text-xs text-dark-300">{order.items.length} productos · {order.items.reduce((a: number, i: any) => a + i.quantity, 0)} piezas</p>
+                    <p className="text-xs text-dark-300">{order.items.length} productos · {order.items.reduce((a: number, i: any) => a + i.quantity, 0)} unidades</p>
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {order.items.slice(0, 3).map((item: any) => (
+                        <span key={item.id} className="text-xs text-dark-400">
+                          {item.product.shortName}: {item.packages || item.quantity} {item.packages ? 'paq' : 'uds'}
+                        </span>
+                      ))}
+                      {order.items.length > 3 && (
+                        <span className="text-xs text-dark-400">+{order.items.length - 3} más</span>
+                      )}
+                    </div>
                     {order.reason && <p className="text-xs text-dark-400 mt-1 italic">"{order.reason}"</p>}
                   </div>
                 </div>

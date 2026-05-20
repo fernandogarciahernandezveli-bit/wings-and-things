@@ -27,7 +27,7 @@ export function Settings() {
   const [newProduct, setNewProduct] = useState(false)
   const [form, setForm] = useState({
     name: '', shortName: '', category: 'refrescos' as ProductCategory,
-    unit: 'pieza', aliases: '', initialStock: 0
+    unit: 'pieza', unitsPerPackage: 1, aliases: '', initialStock: 0
   })
 
   // User state
@@ -88,6 +88,10 @@ export function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       addNotification({ type: 'success', message: 'Producto guardado correctamente' })
       setEditProduct(null)
       setNewProduct(false)
@@ -126,6 +130,11 @@ export function Settings() {
     mutationFn: (id: string) => productsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       addNotification({ type: 'info', message: 'Producto desactivado' })
     }
   })
@@ -135,6 +144,9 @@ export function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       addNotification({ type: 'success', message: 'Nueva semana iniciada' })
       setIsNewWeekModalOpen(false)
     }
@@ -144,6 +156,10 @@ export function Settings() {
     mutationFn: (id: string) => weeksApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weeks'] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       addNotification({ type: 'success', message: 'Semana eliminada correctamente' })
     },
     onError: (err: any) => {
@@ -155,6 +171,10 @@ export function Settings() {
     mutationFn: (id: string) => weeksApi.close(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weeks'] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       addNotification({ type: 'info', message: 'Semana cerrada' })
     }
   })
@@ -166,6 +186,7 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       addNotification({ type: 'success', message: 'Comanda eliminada y stock recalculado' })
     },
     onError: (err: any) => {
@@ -179,6 +200,8 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details', selectedWeekForEdit] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       addNotification({ type: 'success', message: 'Inventario inicial actualizado y stock recalculado' })
     },
     onError: (err: any) => {
@@ -193,6 +216,7 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       addNotification({ type: 'success', message: 'Ajuste manual registrado exitosamente' })
       setAdjustmentForm({ productId: '', newActualStock: 0, note: '' })
     },
@@ -201,7 +225,7 @@ export function Settings() {
     }
   })
 
-  const resetForm = () => setForm({ name: '', shortName: '', category: 'refrescos', unit: 'pieza', aliases: '', initialStock: 0 })
+  const resetForm = () => setForm({ name: '', shortName: '', category: 'refrescos', unit: 'pieza', unitsPerPackage: 1, aliases: '', initialStock: 0 })
 
   const openEdit = (p: Product) => {
     setEditProduct(p)
@@ -210,6 +234,7 @@ export function Settings() {
       shortName: p.shortName, 
       category: p.category, 
       unit: p.unit, 
+      unitsPerPackage: (p as any).unitsPerPackage || 1,
       aliases: p.aliases.join(', '),
       initialStock: 0 // Reset for edit mode, only used if specifically changed
     })
@@ -222,10 +247,12 @@ export function Settings() {
       return
     }
     
-    saveProductMutation.mutate({
-      ...form,
-      aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean)
-    })
+    // Only send initialStock if it's a new product (editProduct is null)
+    const dataToSend = editProduct 
+      ? { ...form, aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean) }
+      : { ...form, initialStock: form.initialStock, aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean) }
+    
+    saveProductMutation.mutate(dataToSend)
   }
 
   const handleDeleteProduct = (id: string) => {
@@ -299,7 +326,7 @@ export function Settings() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-dark-600/50">
-                  {['Nombre', 'Corto', 'Categoría', 'Unidad', 'Aliases', 'Estado', ''].map((h) => (
+                  {['Nombre', 'Corto', 'Categoría', 'Unidad', 'Uds/Paquete', 'Aliases', 'Estado', ''].map((h) => (
                     <th key={h} className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">
                       {h}
                     </th>
@@ -315,6 +342,7 @@ export function Settings() {
                       <Badge variant="gray">{p.category}</Badge>
                     </td>
                     <td className="px-5 py-3 text-sm text-dark-200">{p.unit}</td>
+                    <td className="px-5 py-3 text-sm text-accent font-mono">{(p as any).unitsPerPackage || 1}</td>
                     <td className="px-5 py-3 text-xs text-dark-300 max-w-xs truncate">
                       {p.aliases.join(', ')}
                     </td>
@@ -770,6 +798,17 @@ export function Settings() {
                 placeholder="pieza, caja, etc."
                 value={form.unit}
                 onChange={(e) => setForm({ ...form, unit: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-dark-300 mb-1.5 block">Unidades por paquete</label>
+              <input
+                type="number"
+                min="1"
+                className="input"
+                placeholder="1"
+                value={form.unitsPerPackage}
+                onChange={(e) => setForm({ ...form, unitsPerPackage: parseInt(e.target.value) || 1 })}
               />
             </div>
             <div>

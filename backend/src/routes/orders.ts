@@ -51,18 +51,32 @@ ordersRouter.post('/confirm', authenticate, async (req, res, next) => {
     const userId = req.user.id
 
     const order = await prisma.$transaction(async (tx) => {
-      // 1. Save the order
+      // Fetch products to get unitsPerPackage for each
+      const productIds = items.map(i => i.productId)
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } }
+      })
+      const productMap = new Map(products.map(p => [p.id, p]))
+
+      // 1. Save the order with packages calculated
       const newOrder = await tx.order.create({
         data: {
           weekId,
           confirmedAt: new Date(),
           reason,
           items: {
-            create: items.map(item => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              recommended: item.recommended ?? 0
-            }))
+            create: items.map(item => {
+              const product = productMap.get(item.productId)
+              const unitsPerPackage = (product as any)?.unitsPerPackage || 1
+              const packages = Math.ceil(item.quantity / unitsPerPackage)
+              
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                packages,
+                recommended: item.recommended ?? 0
+              }
+            })
           }
         },
         include: {
