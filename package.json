@@ -16,6 +16,7 @@
     "build:backend": "turbo build --filter=@prompt-maestro/backend"
   },
   "devDependencies": {
+    "@types/node": "^25.9.1",
     "concurrently": "^8.2.2",
     "turbo": "latest"
   }
