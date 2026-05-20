@@ -172,7 +172,7 @@ export function Inventory() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Inventario</h1>
           <div className="flex items-center gap-2 mt-0.5">
@@ -195,28 +195,30 @@ export function Inventory() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setIsHistoryModalOpen(true)}
-            className="btn-ghost flex items-center gap-2 text-sm"
-          >
-            <History size={14} />
-            Historial
-          </button>
-          <button 
-            onClick={() => selectedWeek && exportInventoryToExcel(inventory, format(new Date(selectedWeek.startDate), 'dd-MM-yyyy'))}
-            className="btn-ghost flex items-center gap-2 text-sm"
-          >
-            <Download size={14} />
-            Excel
-          </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setIsHistoryModalOpen(true)}
+              className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2 text-sm"
+            >
+              <History size={14} />
+              Historial
+            </button>
+            <button 
+              onClick={() => selectedWeek && exportInventoryToExcel(inventory, format(new Date(selectedWeek.startDate), 'dd-MM-yyyy'))}
+              className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2 text-sm"
+            >
+              <Download size={14} />
+              Excel
+            </button>
+          </div>
           {isSelectedActive && (
             <button 
               onClick={() => {
                 setEntryForm({ productId: inventory[0]?.productId || '', quantity: 0, note: '' })
                 setIsEntryModalOpen(true)
               }}
-              className="btn-primary flex items-center gap-2 text-sm"
+              className="btn-primary flex items-center justify-center gap-2 text-sm"
             >
               <Plus size={14} />
               Registrar entrada
@@ -226,7 +228,7 @@ export function Inventory() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Stock inicial" value={totalInitial} sub="piezas" icon={<Package size={18} />} color="text-dark-200" />
         <StatCard label="Consumido" value={totalConsumed} sub="piezas" color="text-accent" />
         <StatCard label="Stock actual" value={totalCurrent} sub="piezas" color="text-success" />
@@ -240,13 +242,13 @@ export function Inventory() {
       </div>
 
       {/* Filter */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setFilterCat(cat)}
             className={clsx(
-              'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+              'px-3 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap',
               filterCat === cat
                 ? 'bg-accent/15 text-accent'
                 : 'text-dark-200 hover:text-white hover:bg-dark-700'
@@ -264,94 +266,96 @@ export function Inventory() {
             <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-dark-600/50">
-                <th className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Producto</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Inicial</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Entradas</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Consumido</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Actual</th>
-                <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Final</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item: any) => {
-                const currentStock = item.initialStock + item.purchasedStock - item.consumed
-                const status = getStockStatus(currentStock)
-                const usagePct = (item.initialStock + item.purchasedStock) > 0 
-                  ? (item.consumed / (item.initialStock + item.purchasedStock)) * 100 
-                  : 0
+          <div className="overflow-x-auto scrollbar-thin">
+            <table className="w-full min-w-[800px] lg:min-w-0">
+              <thead>
+                <tr className="border-b border-dark-600/50 text-left">
+                  <th className="px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Producto</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Inicial</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Entradas</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Consumido</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Actual</th>
+                  <th className="text-center px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Final</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((item: any) => {
+                  const currentStock = item.initialStock + item.purchasedStock - item.consumed
+                  const status = getStockStatus(currentStock)
+                  const usagePct = (item.initialStock + item.purchasedStock) > 0 
+                    ? (item.consumed / (item.initialStock + item.purchasedStock)) * 100 
+                    : 0
 
-                const canEditInitial = isAdmin || isSelectedActive
-                const canEditFinal = isAdmin || !isSelectedActive
+                  const canEditInitial = isAdmin || isSelectedActive
+                  const canEditFinal = isAdmin || !isSelectedActive
 
-                return (
-                  <tr
-                    key={item.id}
-                    className="border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors"
-                  >
-                    <td className="px-5 py-3.5">
-                      <div>
-                        <p className="text-sm font-medium text-white">{item.product.name}</p>
-                        <p className="text-xs text-dark-300 capitalize">{item.product.category} · {item.product.unit}</p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <button
-                        disabled={!canEditInitial}
-                        onClick={() => openEdit(item, 'initial')}
-                        className={clsx("group flex items-center justify-center gap-1 mx-auto", !canEditInitial && "cursor-default")}
-                      >
-                        <span className="text-sm font-mono text-white">{item.initialStock}</span>
-                        {canEditInitial && <Edit3 size={11} className="text-dark-400 opacity-0 group-hover:opacity-100 transition-opacity" />}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span className={clsx('text-sm font-mono', item.purchasedStock > 0 ? 'text-success' : 'text-dark-300')}>
-                        +{item.purchasedStock}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-sm font-mono text-accent">{item.consumed}</span>
-                        <div className="w-16">
-                          <ProgressBar value={usagePct} max={100} color="accent" />
+                  return (
+                    <tr
+                      key={item.id}
+                      className="border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors"
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-white truncate max-w-[150px] lg:max-w-none">{item.product.name}</p>
+                          <p className="text-xs text-dark-300 capitalize">{item.product.category} · {item.product.unit}</p>
                         </div>
-                        <span className="text-2xs text-dark-300">{Math.round(usagePct)}%</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <span
-                        className={clsx(
-                          'text-sm font-mono font-semibold',
-                          currentStock <= 0 ? 'text-danger' : currentStock < 10 ? 'text-danger' : 'text-white'
-                        )}
-                      >
-                        {currentStock}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-center">
-                      <button
-                        disabled={!canEditFinal}
-                        onClick={() => openEdit(item, 'final')}
-                        className={clsx("group flex items-center justify-center gap-1 mx-auto", !canEditFinal && "cursor-default")}
-                      >
-                        <span className="text-sm font-mono text-dark-100">
-                          {item.finalStock ?? '-'}
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <button
+                          disabled={!canEditInitial}
+                          onClick={() => openEdit(item, 'initial')}
+                          className={clsx("group flex items-center justify-center gap-1 mx-auto", !canEditInitial && "cursor-default")}
+                        >
+                          <span className="text-sm font-mono text-white">{item.initialStock}</span>
+                          {canEditInitial && <Edit3 size={11} className="text-dark-400 opacity-0 lg:group-hover:opacity-100 transition-opacity" />}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span className={clsx('text-sm font-mono', item.purchasedStock > 0 ? 'text-success' : 'text-dark-300')}>
+                          +{item.purchasedStock}
                         </span>
-                        {canEditFinal && <Edit3 size={11} className="text-dark-400 opacity-0 group-hover:opacity-100 transition-opacity" />}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant={status.color}>{status.label}</Badge>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="text-sm font-mono text-accent">{item.consumed}</span>
+                          <div className="w-16">
+                            <ProgressBar value={usagePct} max={100} color="accent" />
+                          </div>
+                          <span className="text-2xs text-dark-300">{Math.round(usagePct)}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <span
+                          className={clsx(
+                            'text-sm font-mono font-semibold',
+                            currentStock <= 0 ? 'text-danger' : currentStock < 10 ? 'text-danger' : 'text-white'
+                          )}
+                        >
+                          {currentStock}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        <button
+                          disabled={!canEditFinal}
+                          onClick={() => openEdit(item, 'final')}
+                          className={clsx("group flex items-center justify-center gap-1 mx-auto", !canEditFinal && "cursor-default")}
+                        >
+                          <span className="text-sm font-mono text-dark-100">
+                            {item.finalStock ?? '-'}
+                          </span>
+                          {canEditFinal && <Edit3 size={11} className="text-dark-400 opacity-0 lg:group-hover:opacity-100 transition-opacity" />}
+                        </button>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Badge variant={status.color}>{status.label}</Badge>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

@@ -160,7 +160,7 @@ export function Orders() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Pedido inteligente</h1>
           <div className="flex items-center gap-2 mt-0.5">
@@ -183,44 +183,44 @@ export function Orders() {
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-dark-800 rounded-lg p-1 mr-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex bg-dark-800 rounded-lg p-1">
             <button
               onClick={() => setView('recommend')}
-              className={clsx('px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-2', view === 'recommend' ? 'bg-dark-600 text-white' : 'text-dark-300 hover:text-white')}
+              className={clsx('px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none', view === 'recommend' ? 'bg-dark-600 text-white' : 'text-dark-300 hover:text-white')}
             >
               <ShoppingCart size={14} /> Recomendación
             </button>
             <button
               onClick={() => setView('history')}
-              className={clsx('px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-2', view === 'history' ? 'bg-dark-600 text-white' : 'text-dark-300 hover:text-white')}
+              className={clsx('px-3 py-1.5 rounded-md text-xs font-medium transition-all flex items-center justify-center gap-2 flex-1 sm:flex-none', view === 'history' ? 'bg-dark-600 text-white' : 'text-dark-300 hover:text-white')}
             >
               <History size={14} /> Historial
             </button>
           </div>
           
           {view === 'recommend' && (
-            <>
-              <button onClick={handleExportExcel} className="btn-ghost flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2">
+              <button onClick={handleExportExcel} className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2 text-sm">
                 <Download size={14} /> Excel
               </button>
               {isSelectedActive && (
                 <button
                   onClick={() => setIsConfirmModalOpen(true)}
                   disabled={confirmOrder.isPending || totalToOrder === 0 || !selectedWeekId}
-                  className="btn-primary flex items-center gap-2"
+                  className="btn-primary flex-1 sm:flex-none flex items-center justify-center gap-2"
                 >
                   {confirmOrder.isPending ? (
                     <div className="w-4 h-4 border-2 border-dark-900/30 border-t-dark-900 rounded-full animate-spin" />
                   ) : (
                     <>
                       <ShoppingCart size={16} /> 
-                      Confirmar pedido
+                      Confirmar
                     </>
                   )}
                 </button>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -234,7 +234,7 @@ export function Orders() {
             </div>
           </div>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard label="Productos a pedir" value={itemsToOrder} sub="referencias" icon={<ShoppingCart size={18} />} color="text-accent" />
             <StatCard label="Total piezas" value={totalToOrder} sub="unidades" />
             <StatCard label="Ajustados" value={Object.keys(overrides).length} sub="manualmente" />
@@ -246,86 +246,88 @@ export function Orders() {
           </div>
 
           <div className="card overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-dark-600/50 flex items-center justify-between">
+            <div className="px-5 py-3.5 border-b border-dark-600/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h2 className="section-title">Recomendaciones de pedido</h2>
-              <span className="text-xs text-dark-300">Haz clic en la cantidad para ajustar</span>
+              <span className="text-xs text-dark-300">Ajusta la cantidad en paquetes</span>
             </div>
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-dark-600/30">
-                  {['Producto', 'Stock actual', 'Consumo', 'Recomendado', 'Paquetes', 'PEDIR (paq)'].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider first:pl-5">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recommendations.map((rec: any) => {
-                  const qty = overrides[rec.productId] ?? rec.recommended
-                  const isOverridden = overrides[rec.productId] !== undefined
-                  const unitsPerPackage = getUnitsPerPackage(rec.productId)
-                  const packages = calculatePackages(qty, rec.productId)
+            <div className="overflow-x-auto scrollbar-thin">
+              <table className="w-full min-w-[700px] lg:min-w-0">
+                <thead>
+                  <tr className="border-b border-dark-600/30 text-left">
+                    {['Producto', 'Stock actual', 'Consumo', 'Recomendado', 'Paquetes', 'PEDIR (paq)'].map((h) => (
+                      <th key={h} className="px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider first:pl-5">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {recommendations.map((rec: any) => {
+                    const qty = overrides[rec.productId] ?? rec.recommended
+                    const isOverridden = overrides[rec.productId] !== undefined
+                    const unitsPerPackage = getUnitsPerPackage(rec.productId)
+                    const packages = calculatePackages(qty, rec.productId)
 
-                  return (
-                    <tr
-                      key={rec.productId}
-                      className={clsx(
-                        'border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors',
-                        qty === 0 && 'opacity-50'
-                      )}
-                    >
-                      <td className="px-5 py-3.5">
-                        <p className="text-sm font-medium text-white">{rec.productName}</p>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={clsx('text-sm font-mono', rec.currentStock < 10 ? 'text-danger' : 'text-white')}>
-                          {rec.currentStock}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm font-mono text-accent">{rec.consumed}</span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className="text-sm font-mono text-dark-200">{rec.recommended} uds</span>
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <span className={clsx('text-sm font-mono', unitsPerPackage > 1 ? 'text-accent' : 'text-dark-300')}>
-                          {packages} {unitsPerPackage > 1 ? 'paq' : ''}
-                        </span>
-                        {unitsPerPackage > 1 && (
-                          <span className="text-xs text-dark-400 ml-1">({unitsPerPackage} uds/paq)</span>
+                    return (
+                      <tr
+                        key={rec.productId}
+                        className={clsx(
+                          'border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors',
+                          qty === 0 && 'opacity-50'
                         )}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="0"
-                            value={packages}
-                            onChange={(e) => handleOverride(rec.productId, e.target.value)}
-                            className={clsx(
-                              'w-20 text-center font-mono font-bold text-base rounded-lg px-2 py-1.5 border outline-none transition-all',
-                              isOverridden
-                                ? 'bg-accent/10 border-accent/40 text-accent'
-                                : 'bg-dark-700 border-dark-500/60 text-white focus:border-accent/50'
-                            )}
-                          />
-                          {isOverridden && (
-                            <button
-                              onClick={() => setOverrides((p) => { const n = { ...p }; delete n[rec.productId]; return n })}
-                              className="text-xs text-dark-300 hover:text-accent transition-colors"
-                            >
-                              Reset
-                            </button>
+                      >
+                        <td className="px-5 py-3.5">
+                          <p className="text-sm font-medium text-white">{rec.productName}</p>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={clsx('text-sm font-mono', rec.currentStock < 10 ? 'text-danger' : 'text-white')}>
+                            {rec.currentStock}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-sm font-mono text-accent">{rec.consumed}</span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className="text-sm font-mono text-dark-200">{rec.recommended} uds</span>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={clsx('text-sm font-mono', unitsPerPackage > 1 ? 'text-accent' : 'text-dark-300')}>
+                            {packages} {unitsPerPackage > 1 ? 'paq' : ''}
+                          </span>
+                          {unitsPerPackage > 1 && (
+                            <span className="text-xs text-dark-400 ml-1">({unitsPerPackage} uds/paq)</span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="0"
+                              value={packages}
+                              onChange={(e) => handleOverride(rec.productId, e.target.value)}
+                              className={clsx(
+                                'w-16 sm:w-20 text-center font-mono font-bold text-sm sm:text-base rounded-lg px-2 py-1.5 border outline-none transition-all',
+                                isOverridden
+                                  ? 'bg-accent/10 border-accent/40 text-accent'
+                                  : 'bg-dark-700 border-dark-500/60 text-white focus:border-accent/50'
+                              )}
+                            />
+                            {isOverridden && (
+                              <button
+                                onClick={() => setOverrides((p) => { const n = { ...p }; delete n[rec.productId]; return n })}
+                                className="text-xs text-dark-300 hover:text-accent transition-colors"
+                              >
+                                Reset
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       ) : (
@@ -337,13 +339,13 @@ export function Orders() {
             </div>
           ) : (
             history.map((order: any) => (
-              <div key={order.id} className="card p-5 flex items-center justify-between group hover:border-dark-500 transition-all">
+              <div key={order.id} className="card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:border-dark-500 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-accent">
+                  <div className="w-10 h-10 rounded-full bg-dark-700 flex items-center justify-center text-accent flex-shrink-0">
                     <CheckSquare size={20} />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
                       <p className="text-sm font-bold text-white">Pedido {format(new Date(order.confirmedAt), 'dd/MM/yyyy HH:mm')}</p>
                       {order.reason && <Badge variant="warning">Extraordinario</Badge>}
                     </div>
@@ -358,13 +360,13 @@ export function Orders() {
                         <span className="text-xs text-dark-400">+{order.items.length - 3} más</span>
                       )}
                     </div>
-                    {order.reason && <p className="text-xs text-dark-400 mt-1 italic">"{order.reason}"</p>}
+                    {order.reason && <p className="text-xs text-dark-400 mt-1 italic truncate">"{order.reason}"</p>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-all">
                   <button 
                     onClick={() => generateOrderPDF(order, user, selectedWeek)}
-                    className="btn-ghost flex items-center gap-2 text-xs"
+                    className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs py-2 px-4 sm:p-2"
                     title="Descargar PDF"
                   >
                     <Download size={14} /> PDF

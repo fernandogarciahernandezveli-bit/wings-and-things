@@ -289,19 +289,21 @@ export function Settings() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-white">Configuración</h1>
-        <p className="text-sm text-dark-200 mt-0.5">Gestión del sistema · {user?.name}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-white">Configuración</h1>
+          <p className="text-sm text-dark-200 mt-0.5">Gestión del sistema · {user?.name}</p>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-fit">
+      <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-full sm:w-fit overflow-x-auto">
         {TABS.filter(t => !t.hidden).map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setTab(id)}
             className={clsx(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+              'flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all flex-1 sm:flex-none whitespace-nowrap',
               tab === id ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white'
             )}
           >
@@ -314,59 +316,61 @@ export function Settings() {
       {/* Products Tab */}
       {tab === 'products' && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <p className="text-sm text-dark-200">{products.length} productos registrados</p>
             {isAdmin && (
-              <button onClick={() => { resetForm(); setEditProduct(null); setNewProduct(true) }} className="btn-primary flex items-center gap-2 text-sm">
+              <button onClick={() => { resetForm(); setEditProduct(null); setNewProduct(true) }} className="btn-primary flex items-center justify-center gap-2 text-sm">
                 <Plus size={14} /> Nuevo producto
               </button>
             )}
           </div>
           <div className="card overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-dark-600/50">
-                  {['Nombre', 'Corto', 'Categoría', 'Unidad', 'Uds/Paquete', 'Aliases', 'Estado', ''].map((h) => (
-                    <th key={h} className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p: Product) => (
-                  <tr key={p.id} className="border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors">
-                    <td className="px-5 py-3 text-sm text-white font-medium">{p.name}</td>
-                    <td className="px-5 py-3 text-sm text-dark-200">{p.shortName}</td>
-                    <td className="px-5 py-3">
-                      <Badge variant="gray">{p.category}</Badge>
-                    </td>
-                    <td className="px-5 py-3 text-sm text-dark-200">{p.unit}</td>
-                    <td className="px-5 py-3 text-sm text-accent font-mono">{(p as any).unitsPerPackage || 1}</td>
-                    <td className="px-5 py-3 text-xs text-dark-300 max-w-xs truncate">
-                      {p.aliases.join(', ')}
-                    </td>
-                    <td className="px-5 py-3">
-                      <Badge variant={p.isActive ? 'success' : 'gray'}>
-                        {p.isActive ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                    </td>
-                    {isAdmin && (
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => openEdit(p)} className="btn-ghost p-1.5 text-dark-200 hover:text-white">
-                            <Edit3 size={13} />
-                          </button>
-                          <button onClick={() => handleDeleteProduct(p.id)} className="p-1.5 rounded-lg text-dark-300 hover:text-danger hover:bg-danger/10 transition-all">
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
-                    )}
+            <div className="overflow-x-auto scrollbar-thin">
+              <table className="w-full min-w-[800px] lg:min-w-0">
+                <thead>
+                  <tr className="border-b border-dark-600/50 text-left">
+                    {['Nombre', 'Corto', 'Categoría', 'Unidad', 'Uds/Paquete', 'Aliases', 'Estado', ''].map((h) => (
+                      <th key={h} className="px-5 py-3 text-xs font-medium text-dark-200 uppercase tracking-wider">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {products.map((p: Product) => (
+                    <tr key={p.id} className="border-b border-dark-600/20 hover:bg-dark-700/30 transition-colors">
+                      <td className="px-5 py-3 text-sm text-white font-medium">{p.name}</td>
+                      <td className="px-5 py-3 text-sm text-dark-200">{p.shortName}</td>
+                      <td className="px-5 py-3">
+                        <Badge variant="gray">{p.category}</Badge>
+                      </td>
+                      <td className="px-5 py-3 text-sm text-dark-200">{p.unit}</td>
+                      <td className="px-5 py-3 text-sm text-accent font-mono">{(p as any).unitsPerPackage || 1}</td>
+                      <td className="px-5 py-3 text-xs text-dark-300 max-w-xs truncate">
+                        {p.aliases.join(', ')}
+                      </td>
+                      <td className="px-5 py-3">
+                        <Badge variant={p.isActive ? 'success' : 'gray'}>
+                          {p.isActive ? 'Activo' : 'Inactivo'}
+                        </Badge>
+                      </td>
+                      {isAdmin && (
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2">
+                            <button onClick={() => openEdit(p)} className="btn-ghost p-1.5 text-dark-200 hover:text-white">
+                              <Edit3 size={13} />
+                            </button>
+                            <button onClick={() => handleDeleteProduct(p.id)} className="p-1.5 rounded-lg text-dark-300 hover:text-danger hover:bg-danger/10 transition-all">
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -374,10 +378,10 @@ export function Settings() {
       {/* Users Tab */}
       {tab === 'users' && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <p className="text-sm text-dark-200">{allUsers.length} usuarios registrados</p>
             {isAdmin && (
-              <button onClick={() => setIsNewUserModalOpen(true)} className="btn-primary flex items-center gap-2 text-sm">
+              <button onClick={() => setIsNewUserModalOpen(true)} className="btn-primary flex items-center justify-center gap-2 text-sm">
                 <Plus size={14} /> Nuevo usuario
               </button>
             )}
@@ -385,17 +389,17 @@ export function Settings() {
           <div className="card p-5">
             <div className="flex flex-col gap-3">
               {allUsers.map((u: any) => (
-                <div key={u.email} className="flex items-center justify-between py-3 border-b border-dark-600/30 last:border-0">
+                <div key={u.email} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-dark-600/30 last:border-0 gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-dark-600 rounded-full flex items-center justify-center text-sm font-semibold text-white">
+                    <div className="w-9 h-9 bg-dark-600 rounded-full flex items-center justify-center text-sm font-semibold text-white flex-shrink-0">
                       {u.name.charAt(0)}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-white">{u.name}</p>
-                      <p className="text-xs text-dark-300">{u.email}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white truncate">{u.name}</p>
+                      <p className="text-xs text-dark-300 truncate">{u.email}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-4">
                     <Badge variant={u.role === 'admin' ? 'accent' : 'gray'}>{u.role}</Badge>
                     {isAdmin && u.email !== user?.email && (
                       <button 
@@ -419,17 +423,17 @@ export function Settings() {
       {/* Weeks Tab */}
       {tab === 'weeks' && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 className="section-title">Semanas registradas</h2>
             {isAdmin && (
-              <button onClick={() => setIsNewWeekModalOpen(true)} className="btn-primary flex items-center gap-2 text-sm">
+              <button onClick={() => setIsNewWeekModalOpen(true)} className="btn-primary flex items-center justify-center gap-2 text-sm">
                 <Plus size={14} /> Nueva semana
               </button>
             )}
           </div>
           <div className="card p-5 flex flex-col gap-1">
             {weeks.map((w: any) => (
-              <div key={w.id} className="flex items-center justify-between py-3 border-b border-dark-600/30 last:border-0 group">
+              <div key={w.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-dark-600/30 last:border-0 group gap-4">
                 <div className="flex items-center gap-4">
                   <div>
                     <p className="text-sm font-medium text-white">
@@ -443,26 +447,26 @@ export function Settings() {
                 </div>
                 <div className="flex items-center gap-3">
                   {isAdmin && (
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity w-full sm:w-auto">
                       <button 
                         onClick={() => openWeekEdit(w.id)}
-                        className="btn-ghost flex items-center gap-1.5 text-xs px-2.5 py-1.5"
+                        className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-xs px-2.5 py-1.5"
                       >
                         <Edit3 size={13} />
-                        Editar Semana
+                        Editar
                       </button>
                       
                       {w.status === 'open' ? (
                         <button 
                           onClick={() => confirm('¿Cerrar esta semana?') && closeWeekMutation.mutate(w.id)}
-                          className="text-xs text-dark-300 hover:text-danger transition-colors px-2"
+                          className="text-xs text-dark-300 hover:text-danger transition-colors px-2 flex-1 sm:flex-none text-center"
                         >
                           Cerrar semana
                         </button>
                       ) : (
                         <button 
                           onClick={() => confirm('¿Deseas eliminar esta semana? Esta acción es irreversible y borrará todo el historial relacionado.') && deleteWeekMutation.mutate(w.id)}
-                          className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10 transition-all"
+                          className="p-1.5 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10 transition-all ml-auto sm:ml-0"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -480,7 +484,7 @@ export function Settings() {
       <Modal
         open={isWeekEditModalOpen}
         onClose={() => setIsWeekEditModalOpen(false)}
-        title={`Administrar Semana: ${weekDetails ? format(new Date(weekDetails.startDate), 'dd/MM') + ' - ' + format(new Date(weekDetails.endDate), 'dd/MM') : ''}`}
+        title={`Semana: ${weekDetails ? format(new Date(weekDetails.startDate), 'dd/MM') + ' - ' + format(new Date(weekDetails.endDate), 'dd/MM') : ''}`}
         size="lg"
       >
         {loadingDetails ? (
@@ -489,48 +493,48 @@ export function Settings() {
           </div>
         ) : weekDetails && (
           <div className="flex flex-col gap-6 max-h-[75vh] overflow-y-auto pr-2">
-            <div className="grid grid-cols-4 gap-4">
-              <div className="card bg-dark-700/30 p-4">
-                <p className="text-xs text-dark-300 mb-1 uppercase font-bold tracking-wider">Estado Real</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="card bg-dark-700/30 p-4 flex flex-col justify-between">
+                <p className="text-[10px] text-dark-300 mb-1 uppercase font-bold tracking-wider">Estado</p>
                 <Badge variant={weekDetails.status === 'open' ? 'success' : 'gray'}>
                   {weekDetails.status === 'open' ? 'Activa' : 'Cerrada'}
                 </Badge>
               </div>
               <div className="card bg-dark-700/30 p-4">
-                <p className="text-xs text-dark-300 mb-1 uppercase font-bold tracking-wider">Comandas</p>
-                <p className="text-xl font-bold text-white">{weekDetails.comandas.length}</p>
+                <p className="text-[10px] text-dark-300 mb-1 uppercase font-bold tracking-wider">Comandas</p>
+                <p className="text-lg font-bold text-white">{weekDetails.comandas.length}</p>
               </div>
               <div className="card bg-dark-700/30 p-4">
-                <p className="text-xs text-dark-300 mb-1 uppercase font-bold tracking-wider">Total Piezas</p>
-                <p className="text-xl font-bold text-accent">
+                <p className="text-[10px] text-dark-300 mb-1 uppercase font-bold tracking-wider">Total Piezas</p>
+                <p className="text-lg font-bold text-accent">
                   {weekDetails.comandas.reduce((a: number, c: any) => a + c.items.reduce((b: number, i: any) => b + i.quantity, 0), 0)}
                 </p>
               </div>
               <div className="card bg-dark-700/30 p-4">
-                <p className="text-xs text-dark-300 mb-1 uppercase font-bold tracking-wider">Items Inventario</p>
-                <p className="text-xl font-bold text-white">{weekDetails.inventoryItems.length}</p>
+                <p className="text-[10px] text-dark-300 mb-1 uppercase font-bold tracking-wider">Productos</p>
+                <p className="text-lg font-bold text-white">{weekDetails.inventoryItems.length}</p>
               </div>
             </div>
 
             {/* Sub-tabs for Week Editing */}
-            <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-fit">
+            <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-full overflow-x-auto">
               <button
                 onClick={() => setEditTab('comandas')}
-                className={clsx('px-4 py-2 rounded-lg text-sm font-medium transition-all', editTab === 'comandas' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
+                className={clsx('px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex-1 whitespace-nowrap', editTab === 'comandas' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
               >
-                Historial Comandas
+                Comandas
               </button>
               <button
                 onClick={() => setEditTab('initial')}
-                className={clsx('px-4 py-2 rounded-lg text-sm font-medium transition-all', editTab === 'initial' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
+                className={clsx('px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex-1 whitespace-nowrap', editTab === 'initial' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
               >
-                Inventario Inicial
+                Stock Inicial
               </button>
               <button
                 onClick={() => setEditTab('adjustment')}
-                className={clsx('px-4 py-2 rounded-lg text-sm font-medium transition-all', editTab === 'adjustment' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
+                className={clsx('px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex-1 whitespace-nowrap', editTab === 'adjustment' ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white')}
               >
-                Ajuste Manual
+                Ajuste
               </button>
             </div>
 
@@ -538,7 +542,7 @@ export function Settings() {
               <div className="flex flex-col gap-4">
                 <h3 className="section-title flex items-center gap-2">
                   <HistoryIcon size={16} className="text-accent" />
-                  Historial de comandas por día
+                  Historial de comandas
                 </h3>
                 
                 <div className="flex flex-col gap-6">
@@ -549,38 +553,36 @@ export function Settings() {
                     return (
                       <div key={day.toISOString()} className="flex flex-col gap-3">
                         <div className="flex items-center gap-3 border-b border-dark-600/50 pb-2">
-                          <div className="w-10 h-10 rounded-xl bg-dark-600 flex flex-col items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-dark-600 flex flex-col items-center justify-center flex-shrink-0">
                             <span className="text-[10px] uppercase font-bold text-dark-300 leading-none">{format(day, 'EEE', { locale: es })}</span>
                             <span className="text-sm font-bold text-white leading-none mt-0.5">{format(day, 'dd')}</span>
                           </div>
                           <div>
                             <h4 className="text-sm font-bold text-white capitalize">{format(day, 'EEEE dd MMMM', { locale: es })}</h4>
-                            <p className="text-xs text-dark-300">{dayComandas.length} comandas registradas</p>
+                            <p className="text-xs text-dark-300">{dayComandas.length} comandas</p>
                           </div>
                         </div>
 
                         <div className="flex flex-col gap-2">
                           {dayComandas.map((comanda: any) => (
-                            <div key={comanda.id} className="flex items-center justify-between p-3 rounded-xl bg-dark-700/50 border border-dark-600/30 group hover:border-accent/30 transition-all">
-                              <div className="flex items-center gap-4">
-                                <div className="flex flex-col">
-                                  <div className="flex items-center gap-2">
-                                    <Clock size={12} className="text-dark-400" />
-                                    <span className="text-xs font-mono text-dark-200">{format(new Date(comanda.date), 'HH:mm')}</span>
-                                    <span className="text-dark-500">·</span>
-                                    <span className="text-xs text-dark-300">Por {comanda.createdBy.name}</span>
-                                  </div>
-                                  <div className="flex flex-wrap gap-1 mt-1.5">
-                                    {comanda.items.map((item: any) => (
-                                      <Badge key={item.id} variant="gray" className="text-[10px] py-0 px-1.5">
-                                        {item.quantity}x {item.product.shortName}
-                                      </Badge>
-                                    ))}
-                                  </div>
+                            <div key={comanda.id} className="flex items-center justify-between p-3 rounded-xl bg-dark-700/50 border border-dark-600/30 group hover:border-accent/30 transition-all gap-4">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <Clock size={12} className="text-dark-400 flex-shrink-0" />
+                                  <span className="text-xs font-mono text-dark-200">{format(new Date(comanda.date), 'HH:mm')}</span>
+                                  <span className="text-dark-500">·</span>
+                                  <span className="text-xs text-dark-300 truncate">Por {comanda.createdBy.name}</span>
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-1.5">
+                                  {comanda.items.map((item: any) => (
+                                    <Badge key={item.id} variant="gray" className="text-[10px] py-0 px-1.5">
+                                      {item.quantity}x {item.product.shortName}
+                                    </Badge>
+                                  ))}
                                 </div>
                               </div>
                               
-                              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-2 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                 <button 
                                   onClick={() => confirm('¿Deseas eliminar esta comanda? El inventario se recalculará automáticamente.') && deleteComandaMutation.mutate(comanda.id)}
                                   className="p-2 rounded-lg text-dark-400 hover:text-danger hover:bg-danger/10 transition-all"
@@ -597,7 +599,7 @@ export function Settings() {
                   })}
                   {weekDetails.comandas.length === 0 && (
                     <div className="py-10 text-center card bg-dark-700/20 border-dashed">
-                      <p className="text-dark-400 text-sm">No hay comandas registradas en esta semana</p>
+                      <p className="text-dark-400 text-sm">No hay comandas registradas</p>
                     </div>
                   )}
                 </div>
@@ -606,41 +608,43 @@ export function Settings() {
 
             {editTab === 'initial' && (
               <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="section-title">Corregir Inventario Inicial</h3>
-                  <p className="text-xs text-dark-300 italic">Los cambios recalcularán el stock actual automáticamente</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h3 className="section-title">Stock Inicial</h3>
+                  <p className="text-[10px] text-dark-300 italic">Los cambios recalcularán el stock actual automáticamente</p>
                 </div>
                 <div className="card overflow-hidden">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-dark-600/50 bg-dark-800/50">
-                        <th className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase">Producto</th>
-                        <th className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase">Stock Inicial Actual</th>
-                        <th className="text-left px-5 py-3 text-xs font-medium text-dark-200 uppercase">Nueva Cantidad</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {weekDetails.inventoryItems.map((inv: any) => (
-                        <tr key={inv.id} className="border-b border-dark-600/20">
-                          <td className="px-5 py-3 text-sm text-white">{inv.product.name}</td>
-                          <td className="px-5 py-3 text-sm text-dark-300 font-mono">{inv.initialStock}</td>
-                          <td className="px-5 py-3">
-                            <input
-                              type="number"
-                              className="input py-1 px-3 w-32 h-8 text-sm"
-                              defaultValue={inv.initialStock}
-                              onBlur={(e) => {
-                                const val = parseInt(e.target.value)
-                                if (!isNaN(val) && val !== inv.initialStock) {
-                                  saveInitialStockMutation.mutate([{ productId: inv.productId, quantity: val }])
-                                }
-                              }}
-                            />
-                          </td>
+                  <div className="overflow-x-auto scrollbar-thin">
+                    <table className="w-full min-w-[400px]">
+                      <thead>
+                        <tr className="border-b border-dark-600/50 bg-dark-800/50 text-left">
+                          <th className="px-5 py-3 text-xs font-medium text-dark-200 uppercase">Producto</th>
+                          <th className="px-5 py-3 text-xs font-medium text-dark-200 uppercase text-center">Actual</th>
+                          <th className="px-5 py-3 text-xs font-medium text-dark-200 uppercase text-right">Nuevo</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {weekDetails.inventoryItems.map((inv: any) => (
+                          <tr key={inv.id} className="border-b border-dark-600/20">
+                            <td className="px-5 py-3 text-sm text-white">{inv.product.name}</td>
+                            <td className="px-5 py-3 text-sm text-dark-300 font-mono text-center">{inv.initialStock}</td>
+                            <td className="px-5 py-3 text-right">
+                              <input
+                                type="number"
+                                className="input py-1 px-3 w-20 sm:w-32 h-8 text-sm text-right"
+                                defaultValue={inv.initialStock}
+                                onBlur={(e) => {
+                                  const val = parseInt(e.target.value)
+                                  if (!isNaN(val) && val !== inv.initialStock) {
+                                    saveInitialStockMutation.mutate([{ productId: inv.productId, quantity: val }])
+                                  }
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
@@ -650,20 +654,19 @@ export function Settings() {
                 <div className="p-4 bg-warning/10 border border-warning/20 rounded-xl flex gap-3">
                   <AlertCircle className="text-warning shrink-0" size={18} />
                   <div>
-                    <p className="text-sm font-bold text-warning mb-1">Auditoría Física de Inventario</p>
-                    <p className="text-xs text-warning/80 leading-relaxed">
+                    <p className="text-sm font-bold text-warning mb-1">Auditoría Física</p>
+                    <p className="text-[10px] text-warning/80 leading-relaxed">
                       Usa esta herramienta cuando el stock real en el bar no coincida con el sistema. 
-                      El sistema registrará una diferencia en el historial y ajustará el inventario actual.
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-4">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Registrar Ajuste</h3>
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">Registrar Ajuste</h3>
                     <div className="flex flex-col gap-3">
                       <div>
-                        <label className="text-xs text-dark-300 mb-1.5 block">Seleccionar Producto</label>
+                        <label className="text-[10px] text-dark-300 mb-1.5 block">Producto</label>
                         <select
                           className="input"
                           value={adjustmentForm.productId}
@@ -676,20 +679,20 @@ export function Settings() {
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-dark-300 mb-1.5 block">Stock Físico Real (en este momento)</label>
+                        <label className="text-[10px] text-dark-300 mb-1.5 block">Stock Físico Real</label>
                         <input
                           type="number"
                           className="input"
-                          placeholder="¿Cuántas piezas hay realmente?"
+                          placeholder="Piezas reales"
                           value={adjustmentForm.newActualStock}
                           onChange={(e) => setAdjustmentForm({ ...adjustmentForm, newActualStock: parseInt(e.target.value) || 0 })}
                         />
                       </div>
                       <div>
-                        <label className="text-xs text-dark-300 mb-1.5 block">Motivo del Ajuste</label>
+                        <label className="text-[10px] text-dark-300 mb-1.5 block">Motivo</label>
                         <textarea
-                          className="input min-h-[80px] py-2"
-                          placeholder="Ej: Diferencia en conteo físico, rotura de botella, error administrativo..."
+                          className="input min-h-[80px] py-2 text-sm"
+                          placeholder="Ej: Diferencia en conteo físico..."
                           value={adjustmentForm.note}
                           onChange={(e) => setAdjustmentForm({ ...adjustmentForm, note: e.target.value })}
                         />
@@ -704,13 +707,13 @@ export function Settings() {
                         disabled={registerAdjustmentMutation.isPending}
                         className="btn-primary"
                       >
-                        {registerAdjustmentMutation.isPending ? 'Procesando...' : 'Aplicar Ajuste Físico'}
+                        {registerAdjustmentMutation.isPending ? 'Procesando...' : 'Aplicar Ajuste'}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-4">
-                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">Cálculo de Diferencia</h3>
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">Cálculo</h3>
                     {adjustmentForm.productId ? (() => {
                       const inv = weekDetails.inventoryItems.find((i: any) => i.productId === adjustmentForm.productId)
                       const currentSystemStock = inv.initialStock + inv.purchasedStock - inv.consumed
@@ -719,27 +722,24 @@ export function Settings() {
                       return (
                         <div className="card bg-dark-800 p-5 flex flex-col gap-4 border-accent/20">
                           <div className="flex justify-between items-center pb-3 border-b border-dark-600/50">
-                            <span className="text-sm text-dark-200">Stock actual en sistema:</span>
-                            <span className="text-sm font-bold text-white">{currentSystemStock}</span>
+                            <span className="text-xs text-dark-200">Sistema:</span>
+                            <span className="text-xs font-bold text-white">{currentSystemStock}</span>
                           </div>
                           <div className="flex justify-between items-center pb-3 border-b border-dark-600/50">
-                            <span className="text-sm text-dark-200">Stock físico reportado:</span>
-                            <span className="text-sm font-bold text-white">{adjustmentForm.newActualStock}</span>
+                            <span className="text-xs text-dark-200">Físico:</span>
+                            <span className="text-xs font-bold text-white">{adjustmentForm.newActualStock}</span>
                           </div>
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-dark-200">Diferencia a registrar:</span>
-                            <span className={clsx('text-lg font-bold', diff > 0 ? 'text-success' : diff < 0 ? 'text-danger' : 'text-white')}>
-                              {diff > 0 ? `+${diff}` : diff} unidades
+                            <span className="text-xs text-dark-200">Diferencia:</span>
+                            <span className={clsx('text-base font-bold', diff > 0 ? 'text-success' : diff < 0 ? 'text-danger' : 'text-white')}>
+                              {diff > 0 ? `+${diff}` : diff} uds
                             </span>
                           </div>
-                          <p className="text-[10px] text-dark-400 italic mt-2">
-                            * Se registrará un ajuste en el historial para equilibrar el inventario.
-                          </p>
                         </div>
                       )
                     })() : (
                       <div className="card bg-dark-800/50 p-10 flex items-center justify-center border-dashed">
-                        <p className="text-sm text-dark-400">Selecciona un producto para ver la diferencia</p>
+                        <p className="text-xs text-dark-400">Selecciona un producto</p>
                       </div>
                     )}
                   </div>
@@ -749,8 +749,8 @@ export function Settings() {
           </div>
         )}
         <div className="flex justify-end mt-6">
-          <button onClick={() => setIsWeekEditModalOpen(false)} className="btn-primary px-8">
-            Finalizar Edición
+          <button onClick={() => setIsWeekEditModalOpen(false)} className="btn-primary w-full sm:w-auto px-8">
+            Finalizar
           </button>
         </div>
       </Modal>

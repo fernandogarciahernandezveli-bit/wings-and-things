@@ -177,29 +177,31 @@ export function Comandas() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Captura de Comandas</h1>
           <p className="text-sm text-dark-200 mt-0.5">Registra comandas físicas rápidamente</p>
         </div>
         {currentItems.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-dark-200">{totalItems} piezas · {currentItems.length} productos</span>
-            <button onClick={clearItems} className="btn-ghost flex items-center gap-1.5 text-sm">
-              <Trash2 size={14} />
-              Limpiar
-            </button>
-            <button
-              onClick={handleOpenConfirm}
-              disabled={createComanda.isPending || !activeWeek}
-              className="btn-primary flex items-center gap-2"
-            >
-              {createComanda.isPending ? (
-                <div className="w-4 h-4 border-2 border-dark-900/30 border-t-dark-900 rounded-full animate-spin" />
-              ) : (
-                <><Send size={16} /> Guardar comanda</>
-              )}
-            </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+            <span className="text-xs sm:text-sm text-dark-200 text-center sm:text-left">{totalItems} piezas · {currentItems.length} productos</span>
+            <div className="flex items-center gap-2">
+              <button onClick={clearItems} className="btn-ghost flex-1 sm:flex-none flex items-center justify-center gap-1.5 text-sm">
+                <Trash2 size={14} />
+                Limpiar
+              </button>
+              <button
+                onClick={handleOpenConfirm}
+                disabled={createComanda.isPending || !activeWeek}
+                className="btn-primary flex-1 sm:flex-none flex items-center justify-center gap-2"
+              >
+                {createComanda.isPending ? (
+                  <div className="w-4 h-4 border-2 border-dark-900/30 border-t-dark-900 rounded-full animate-spin" />
+                ) : (
+                  <><Send size={16} /> Guardar</>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -228,14 +230,14 @@ export function Comandas() {
 
       {!activeWeek && (
         <div className="p-4 bg-warning/10 border border-warning/20 rounded-lg flex items-center gap-3">
-          <AlertCircle size={18} className="text-warning" />
+          <AlertCircle size={18} className="text-warning flex-shrink-0" />
           <p className="text-sm text-warning font-medium">No hay una semana activa. Debes iniciar una semana para guardar comandas.</p>
         </div>
       )}
 
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Left: Input Panel */}
-        <div className="col-span-3 flex flex-col gap-4">
+        <div className="lg:col-span-3 flex flex-col gap-6">
           {/* Text Input */}
           <div className="card p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
@@ -243,7 +245,7 @@ export function Comandas() {
                 <Zap size={16} className="text-accent" />
                 Entrada de texto
               </h2>
-              <span className="text-xs text-dark-300">Ctrl+Enter para procesar</span>
+              <span className="text-xs text-dark-300 hidden sm:inline">Ctrl+Enter para procesar</span>
             </div>
             <textarea
               ref={textareaRef}
@@ -291,48 +293,48 @@ export function Comandas() {
 
           {/* Quick Add Grid */}
           <div className="card p-4">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <h2 className="section-title">Productos {activeCategory !== 'all' ? CATEGORIES.find(c => c.id === activeCategory)?.label : 'rápidos'}</h2>
-              <div className="relative w-48">
+              <div className="relative w-full sm:w-48">
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-dark-300" />
                 <input
-                  className="input pl-8 py-1.5 text-xs"
+                  className="input pl-8 py-1.5 text-xs w-full"
                   placeholder="Buscar..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[400px] lg:max-h-64 overflow-y-auto pr-1">
               {filtered.map((product: Product) => (
                 <button
                   key={product.id}
                   onClick={() => handleQuickAdd(product)}
                   className="flex items-center justify-between p-2.5 rounded-lg bg-dark-700/50 border border-dark-600/50 hover:border-accent/30 hover:bg-accent/5 transition-all group text-left"
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-xs font-medium text-white truncate">{product.name}</p>
                     <p className={clsx('text-2xs uppercase font-bold tracking-tighter', CATEGORY_COLORS[product.category] || 'text-dark-400')}>
                       {product.category}
                     </p>
                   </div>
-                  <div className="w-6 h-6 rounded bg-dark-600 flex items-center justify-center text-dark-200 group-hover:bg-accent group-hover:text-dark-900 transition-colors">
+                  <div className="w-8 h-8 sm:w-6 sm:h-6 rounded bg-dark-600 flex items-center justify-center text-dark-200 group-hover:bg-accent group-hover:text-dark-900 transition-colors flex-shrink-0 ml-2">
                     <Plus size={14} />
                   </div>
                 </button>
               ))}
               {filtered.length === 0 && (
-                <p className="col-span-2 text-center py-8 text-xs text-dark-400 italic">No se encontraron productos</p>
+                <p className="col-span-1 sm:col-span-2 text-center py-8 text-xs text-dark-400 italic">No se encontraron productos</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Right: Summary Panel */}
-        <div className="col-span-2 flex flex-col gap-4">
-          <div className="card flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="card flex-1 flex flex-col min-h-[400px] lg:min-h-0 overflow-hidden">
             <div className="p-4 border-b border-dark-600/50 flex items-center justify-between bg-dark-700/30">
-              <h2 className="font-display font-semibold text-white">Resumen de Comanda</h2>
+              <h2 className="font-display font-semibold text-white">Resumen</h2>
               <Badge variant="accent">{totalItems} uds</Badge>
             </div>
             
@@ -360,7 +362,7 @@ export function Comandas() {
                       <div className="flex items-center bg-dark-600 rounded-lg p-1">
                         <button
                           onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1))}
-                          className="w-6 h-6 flex items-center justify-center text-dark-300 hover:text-white transition-colors"
+                          className="w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-dark-300 hover:text-white transition-colors"
                         >
                           <Minus size={14} />
                         </button>
@@ -369,14 +371,14 @@ export function Comandas() {
                         </span>
                         <button
                           onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          className="w-6 h-6 flex items-center justify-center text-dark-300 hover:text-white transition-colors"
+                          className="w-8 h-8 sm:w-6 sm:h-6 flex items-center justify-center text-dark-300 hover:text-white transition-colors"
                         >
                           <Plus size={14} />
                         </button>
                       </div>
                       <button
                         onClick={() => removeItem(item.productId)}
-                        className="w-8 h-8 flex items-center justify-center text-dark-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        className="w-8 h-8 flex items-center justify-center text-dark-400 hover:text-danger hover:bg-danger/10 rounded-lg transition-all opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                       >
                         <X size={16} />
                       </button>
@@ -391,7 +393,7 @@ export function Comandas() {
                 <button
                   onClick={handleOpenConfirm}
                   disabled={createComanda.isPending || !activeWeek}
-                  className="btn-primary w-full py-3 flex items-center justify-center gap-2 text-base shadow-xl"
+                  className="btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-base shadow-xl"
                 >
                   {createComanda.isPending ? (
                     <div className="w-5 h-5 border-2 border-dark-900/30 border-t-dark-900 rounded-full animate-spin" />

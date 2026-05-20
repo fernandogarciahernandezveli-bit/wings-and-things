@@ -98,7 +98,7 @@ export function Dashboard() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Dashboard</h1>
           <p className="text-sm text-dark-200 mt-0.5">
@@ -107,7 +107,7 @@ export function Dashboard() {
         </div>
         <button
           onClick={() => setView('comandas')}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center justify-center gap-2"
         >
           <ClipboardList size={16} />
           Nueva Comanda
@@ -115,7 +115,7 @@ export function Dashboard() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Consumo total"
           value={totalConsumed}
@@ -147,45 +147,49 @@ export function Dashboard() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Area Chart - Daily Sales */}
-        <div className="card p-5 col-span-2">
+        <div className="card p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-5">
             <h2 className="section-title">Comandas por día</h2>
           </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={dailyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-              <Tooltip content={customTooltip} />
-              <Line type="monotone" dataKey="total" name="Comandas" stroke="#e8a838" strokeWidth={3} dot={{ fill: '#e8a838', r: 4 }} activeDot={{ r: 6 }} />
-              <Line type="monotone" dataKey="items" name="Productos" stroke="#3b82f6" strokeWidth={2} dot={false} strokeDasharray="5 5" />
-            </LineChart>
-          </ResponsiveContainer>
+          <div className="h-[220px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
+                <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                <Tooltip content={customTooltip} />
+                <Line type="monotone" dataKey="total" name="Comandas" stroke="#e8a838" strokeWidth={3} dot={{ fill: '#e8a838', r: 4 }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="items" name="Productos" stroke="#3b82f6" strokeWidth={2} dot={false} strokeDasharray="5 5" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Bar Chart - Top Products */}
         <div className="card p-5">
           <h2 className="section-title mb-5">Top 5 productos</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={topData} layout="vertical" barSize={16}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#26262f" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 10, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#9898a8' }} axisLine={false} tickLine={false} width={60} />
-              <Tooltip content={customTooltip} />
-              <Bar dataKey="value" name="Consumo" radius={[0, 4, 4, 0]}>
-                {topData.map((entry: any, i: number) => (
-                  <Cell key={i} fill={entry.color} fillOpacity={0.85} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-[220px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={topData} layout="vertical" barSize={16}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#26262f" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#9898a8' }} axisLine={false} tickLine={false} width={60} />
+                <Tooltip content={customTooltip} />
+                <Bar dataKey="value" name="Consumo" radius={[0, 4, 4, 0]}>
+                  {topData.map((entry: any, i: number) => (
+                    <Cell key={i} fill={entry.color} fillOpacity={0.85} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Bottom Row */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Low Stock Alerts */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">

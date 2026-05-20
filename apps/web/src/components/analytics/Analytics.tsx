@@ -109,7 +109,7 @@ export function Analytics() {
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-white">Analíticas</h1>
           <div className="flex items-center gap-2 mt-0.5">
@@ -126,7 +126,7 @@ export function Analytics() {
             </select>
           </div>
         </div>
-        <button onClick={handleExport} className="btn-ghost flex items-center gap-2 text-sm">
+        <button onClick={handleExport} className="btn-ghost flex items-center justify-center gap-2 text-sm">
           <Download size={14} /> Exportar reporte
         </button>
       </div>
@@ -138,7 +138,7 @@ export function Analytics() {
       ) : (
         <>
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard label="Total consumido" value={analytics?.totalItems || 0} sub="piezas" />
             <StatCard label="Comandas" value={analytics?.totalComandas || 0} sub="registradas" />
             <StatCard label="Día más activo" value={dailyData.sort((a: any, b: any) => b.total - a.total)[0]?.dia || '-'} sub={`${dailyData.sort((a: any, b: any) => b.total - a.total)[0]?.total || 0} comandas`} />
@@ -146,13 +146,13 @@ export function Analytics() {
           </div>
 
           {/* Tabs */}
-          <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-fit">
+          <div className="flex items-center gap-1 bg-dark-800 border border-dark-600/50 rounded-xl p-1 w-full sm:w-fit overflow-x-auto">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
                 className={clsx(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-1 sm:flex-none',
                   activeTab === t.id ? 'bg-dark-600 text-white' : 'text-dark-200 hover:text-white'
                 )}
               >
@@ -163,51 +163,57 @@ export function Analytics() {
 
           {/* Tab: Consumo diario */}
           {activeTab === 'consumo' && (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="card p-5 col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="card p-5 lg:col-span-2">
                 <h2 className="section-title mb-5">Consumo por día</h2>
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={dailyData} barGap={4}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
-                    <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-                    <Tooltip content={customTooltip} />
-                    <Bar dataKey="total" name="Comandas" fill="#e8a838" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
-                    <Bar dataKey="items" name="Productos" fill="#3b82f6" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="h-[280px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={dailyData} barGap={4}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
+                      <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                      <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                      <Tooltip content={customTooltip} />
+                      <Bar dataKey="total" name="Comandas" fill="#e8a838" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
+                      <Bar dataKey="items" name="Productos" fill="#3b82f6" radius={[4, 4, 0, 0]} fillOpacity={0.85} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
               <div className="card p-5">
                 <h2 className="section-title mb-5">Distribución semanal</h2>
-                <ResponsiveContainer width="100%" height={280}>
-                  <RadarChart data={radarData}>
-                    <PolarGrid stroke="#26262f" />
-                    <PolarAngleAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} />
-                    <Radar name="Consumo" dataKey="consumo" stroke="#e8a838" fill="#e8a838" fillOpacity={0.15} strokeWidth={2} />
-                  </RadarChart>
-                </ResponsiveContainer>
+                <div className="h-[280px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart data={radarData}>
+                      <PolarGrid stroke="#26262f" />
+                      <PolarAngleAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} />
+                      <Radar name="Consumo" dataKey="consumo" stroke="#e8a838" fill="#e8a838" fillOpacity={0.15} strokeWidth={2} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           )}
 
           {/* Tab: Por producto */}
           {activeTab === 'productos' && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div className="card p-5">
                 <h2 className="section-title mb-5">Consumo total por producto</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={productData} layout="vertical" barSize={18}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#26262f" horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 10, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#9898a8' }} axisLine={false} tickLine={false} width={64} />
-                    <Tooltip content={customTooltip} />
-                    <Bar dataKey="consumo" name="Consumo" radius={[0, 4, 4, 0]}>
-                      {productData.map((e: any, i: number) => (
-                        <Cell key={i} fill={e.color} fillOpacity={0.85} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={productData} layout="vertical" barSize={18}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#26262f" horizontal={false} />
+                      <XAxis type="number" tick={{ fontSize: 10, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                      <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#9898a8' }} axisLine={false} tickLine={false} width={64} />
+                      <Tooltip content={customTooltip} />
+                      <Bar dataKey="consumo" name="Consumo" radius={[0, 4, 4, 0]}>
+                        {productData.map((e: any, i: number) => (
+                          <Cell key={i} fill={e.color} fillOpacity={0.85} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
               <div className="card p-5">
                 <h2 className="section-title mb-4">Ranking de productos</h2>
@@ -246,17 +252,19 @@ export function Analytics() {
           {activeTab === 'tendencias' && (
             <div className="card p-5">
               <h2 className="section-title mb-5">Tendencia de consumo</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
-                  <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
-                  <Tooltip content={customTooltip} />
-                  <Legend />
-                  <Line type="monotone" dataKey="total" name="Comandas" stroke="#e8a838" strokeWidth={3} />
-                  <Line type="monotone" dataKey="items" name="Productos" stroke="#3b82f6" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              <div className="h-[300px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={dailyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#26262f" />
+                    <XAxis dataKey="dia" tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: '#6b6b7a' }} axisLine={false} tickLine={false} />
+                    <Tooltip content={customTooltip} />
+                    <Legend />
+                    <Line type="monotone" dataKey="total" name="Comandas" stroke="#e8a838" strokeWidth={3} />
+                    <Line type="monotone" dataKey="items" name="Productos" stroke="#3b82f6" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           )}
         </>

@@ -74,29 +74,29 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" />
       <div
         className={clsx(
-          'relative w-full bg-dark-800 border border-dark-500/60 rounded-2xl shadow-2xl animate-scale-in',
+          'relative w-full bg-dark-800 border border-dark-500/60 rounded-2xl shadow-2xl animate-scale-in flex flex-col max-h-[95vh]',
           sizes[size]
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
-          <div className="flex items-center justify-between px-5 py-4 border-b border-dark-600/50">
-            <h2 className="font-display font-semibold text-base text-white">{title}</h2>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-dark-600/50 flex-shrink-0">
+            <h2 className="font-display font-semibold text-base text-white truncate pr-4">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-dark-200 hover:text-white hover:bg-dark-600 transition-all"
+              className="p-1.5 rounded-lg text-dark-200 hover:text-white hover:bg-dark-600 transition-all flex-shrink-0"
             >
               <X size={16} />
             </button>
           </div>
         )}
-        <div className="p-5">{children}</div>
+        <div className="p-5 overflow-y-auto overflow-x-hidden scrollbar-thin">{children}</div>
       </div>
     </div>
   )
@@ -110,7 +110,7 @@ export function NotificationToasts() {
   if (!notifications.length) return null
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-0 sm:bottom-5 left-0 right-0 sm:left-auto sm:right-5 z-[100] flex flex-col gap-2 p-4 sm:p-0 pointer-events-none">
       {notifications.map((n) => {
         const icons = {
           success: <CheckCircle size={16} className="text-success flex-shrink-0" />,
@@ -129,7 +129,7 @@ export function NotificationToasts() {
           <div
             key={n.id}
             className={clsx(
-              'flex items-center gap-3 px-4 py-3 bg-dark-700 border rounded-xl shadow-xl animate-slide-in min-w-64 max-w-80',
+              'flex items-center gap-3 px-4 py-3 bg-dark-700 border rounded-xl shadow-xl animate-slide-in pointer-events-auto sm:min-w-64 sm:max-w-80 w-full',
               borders[n.type]
             )}
           >
@@ -137,7 +137,7 @@ export function NotificationToasts() {
             <span className="text-sm text-white flex-1">{n.message}</span>
             <button
               onClick={() => removeNotification(n.id)}
-              className="text-dark-200 hover:text-white transition-colors"
+              className="p-1 text-dark-200 hover:text-white transition-colors flex-shrink-0"
             >
               <X size={14} />
             </button>
