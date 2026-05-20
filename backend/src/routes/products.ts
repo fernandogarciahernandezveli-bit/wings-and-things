@@ -63,7 +63,7 @@ productsRouter.post('/', authenticate, requireAdmin, async (req, res, next) => {
 productsRouter.put('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
     const { initialStock, ...data } = productSchema.partial().parse(req.body)
-    const { id } = req.params
+    const { id } = req.params as { id: string }
 
     const product = await prisma.$transaction(async (tx) => {
       // 1. Update basic info
@@ -123,8 +123,9 @@ productsRouter.put('/:id', authenticate, requireAdmin, async (req, res, next) =>
 
 productsRouter.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    const id = req.params.id as string
     await prisma.product.update({
-      where: { id: req.params.id },
+      where: { id },
       data: { isActive: false },
     })
     res.json({ success: true, message: 'Producto desactivado' })

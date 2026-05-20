@@ -99,8 +99,9 @@ weeksRouter.post('/', authenticate, requireAdmin, async (req, res, next) => {
 
 weeksRouter.delete('/:id', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    const id = req.params.id as string
     const week = await prisma.week.findUnique({
-      where: { id: req.params.id },
+      where: { id },
       include: { comandas: true, inventoryItems: true }
     })
 
@@ -124,8 +125,9 @@ weeksRouter.delete('/:id', authenticate, requireAdmin, async (req, res, next) =>
 
 weeksRouter.patch('/:id/close', authenticate, requireAdmin, async (req, res, next) => {
   try {
+    const id = req.params.id as string
     const week = await prisma.week.update({
-      where: { id: req.params.id },
+      where: { id },
       data: { status: 'closed' },
     })
     res.json({ success: true, data: week })
@@ -137,7 +139,7 @@ weeksRouter.patch('/:id/close', authenticate, requireAdmin, async (req, res, nex
 // GET week details for editing (Admin only)
 weeksRouter.get('/:id/details', authenticate, requireAdmin, async (req, res, next) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const week = await prisma.week.findUnique({
       where: { id },
       include: {

@@ -63,7 +63,7 @@ usersRouter.post('/', requireAdmin, async (req, res, next) => {
 
 usersRouter.delete('/:id', requireAdmin, async (req, res, next) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     // @ts-ignore
     const currentUserId = req.user.id
 
