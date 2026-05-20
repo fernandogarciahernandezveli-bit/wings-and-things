@@ -19,13 +19,13 @@ export function Sidebar() {
   const { user, logout } = useAuthStore()
   const isAdmin = user?.role === 'admin'
 
-  const menuItems = [
-    { id: 'dashboard' as ViewMode, label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'comandas' as ViewMode, label: 'Comandas', icon: ClipboardList },
-    { id: 'inventory' as ViewMode, label: 'Inventario', icon: Package },
-    { id: 'analytics' as ViewMode, label: 'Analíticas', icon: TrendingUp },
-    { id: 'orders' as ViewMode, label: 'Pedido Inteligente', icon: ShoppingCart },
-    { id: 'settings' as ViewMode, label: 'Configuración', icon: Settings },
+  const menuItems: { id: ViewMode; label: string; icon: any; hidden?: boolean }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'comandas', label: 'Comandas', icon: ClipboardList },
+    { id: 'inventory', label: 'Inventario', icon: Package },
+    { id: 'analytics', label: 'Analíticas', icon: TrendingUp, hidden: !isAdmin },
+    { id: 'orders', label: 'Pedido Inteligente', icon: ShoppingCart },
+    { id: 'settings', label: 'Configuración', icon: Settings, hidden: !isAdmin },
   ]
 
   return (

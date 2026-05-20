@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { generateOrderPDF } from '@/utils/pdfExport'
 import { exportOrderList } from '@/utils/excelExport'
+import type { Week } from '@/types'
 
 export function Orders() {
   const queryClient = useQueryClient()
@@ -31,14 +32,14 @@ export function Orders() {
   // Initialize selectedWeekId from active week or first available only once
   useEffect(() => {
     if (weeks.length > 0 && !selectedWeekId) {
-      const active = weeks.find((w: any) => w.status === 'open')
+      const active = (weeks as Week[]).find(w => w.status === 'open')
       setSelectedWeekId(active ? active.id : weeks[0].id)
     }
   }, [weeks, selectedWeekId])
 
-  const selectedWeek = useMemo(() => weeks.find((w: any) => w.id === selectedWeekId), [weeks, selectedWeekId])
+  const selectedWeek = useMemo(() => (weeks as Week[]).find(w => w.id === selectedWeekId), [weeks, selectedWeekId])
   const isSelectedActive = selectedWeek?.status === 'open'
-  const activeWeek = useMemo(() => weeks.find((w: any) => w.status === 'open'), [weeks])
+  const activeWeek = useMemo(() => (weeks as Week[]).find(w => w.status === 'open'), [weeks])
 
   // 2. Fetch products to get unitsPerPackage
   const { data: products = [] } = useQuery({
@@ -168,7 +169,7 @@ export function Orders() {
               onChange={(e) => setSelectedWeekId(e.target.value)}
               className="bg-transparent border-none text-sm text-dark-200 focus:ring-0 p-0 cursor-pointer hover:text-white transition-colors"
             >
-              {weeks.map(w => (
+              {(weeks as Week[]).map(w => (
                 <option key={w.id} value={w.id} className="bg-dark-800">
                   Semana {format(new Date(w.startDate), 'dd/MM/yyyy')} - {format(new Date(w.endDate), 'dd/MM/yyyy')}
                 </option>

@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { exportInventoryToExcel } from '@/utils/excelExport'
+import type { Week } from '@/types'
 
 const CATEGORY_LABELS: Record<string, string> = {
   refrescos: 'Refrescos',
@@ -44,13 +45,13 @@ export function Inventory() {
   // Initialize selectedWeekId from active week or first available only once
   useEffect(() => {
     if (weeks.length > 0 && !selectedWeekId) {
-      const active = weeks.find(w => w.status === 'open')
+      const active = (weeks as Week[]).find(w => w.status === 'open')
       setSelectedWeekId(active ? active.id : weeks[0].id)
     }
   }, [weeks, selectedWeekId])
 
-  const activeWeek = useMemo(() => weeks.find(w => w.status === 'open'), [weeks])
-  const selectedWeek = useMemo(() => weeks.find(w => w.id === (selectedWeekId || weeks[0]?.id)), [weeks, selectedWeekId])
+  const activeWeek = useMemo(() => (weeks as Week[]).find(w => w.status === 'open'), [weeks])
+  const selectedWeek = useMemo(() => (weeks as Week[]).find(w => w.id === (selectedWeekId || weeks[0]?.id)), [weeks, selectedWeekId])
   const isSelectedActive = selectedWeek?.id === activeWeek?.id
   const isAdmin = user?.role === 'admin'
 
@@ -180,7 +181,7 @@ export function Inventory() {
               onChange={(e) => setSelectedWeekId(e.target.value)}
               className="bg-transparent border-none text-sm text-dark-200 focus:ring-0 p-0 cursor-pointer hover:text-white transition-colors"
             >
-              {weeks.map(w => (
+              {(weeks as Week[]).map(w => (
                 <option key={w.id} value={w.id} className="bg-dark-800">
                   Semana {format(new Date(w.startDate), 'dd/MM/yyyy')} - {format(new Date(w.endDate), 'dd/MM/yyyy')}
                 </option>

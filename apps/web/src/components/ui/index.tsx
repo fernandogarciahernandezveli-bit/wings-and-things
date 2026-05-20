@@ -186,7 +186,7 @@ export function Spinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
 
 type BadgeVariant = 'accent' | 'success' | 'danger' | 'info' | 'gray' | 'warning'
 
-export function Badge({ children, variant = 'gray' }: { children: React.ReactNode; variant?: BadgeVariant }) {
+export function Badge({ children, variant = 'gray', className }: { children: React.ReactNode; variant?: BadgeVariant; className?: string }) {
   const variants: Record<BadgeVariant, string> = {
     accent: 'bg-accent/15 text-accent',
     success: 'bg-success/15 text-success',
@@ -199,7 +199,8 @@ export function Badge({ children, variant = 'gray' }: { children: React.ReactNod
     <span
       className={clsx(
         'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium',
-        variants[variant]
+        variants[variant],
+        className
       )}
     >
       {children}

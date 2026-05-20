@@ -12,6 +12,7 @@ import { analyticsApi, weeksApi } from '@/lib/api'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { exportWeeklyAnalytics } from '@/utils/excelExport'
+import type { Week } from '@/types'
 
 const COLORS = ['#e8a838', '#3b82f6', '#22c55e', '#ef4444', '#a855f7', '#14b8a6', '#f97316', '#ec4899', '#84cc16', '#06b6d4']
 
@@ -42,12 +43,12 @@ export function Analytics() {
   // Initialize selectedWeekId from active week or first available only once
   useEffect(() => {
     if (weeks.length > 0 && !selectedWeekId) {
-      const active = weeks.find(w => w.status === 'open')
+      const active = (weeks as Week[]).find(w => w.status === 'open')
       setSelectedWeekId(active ? active.id : weeks[0].id)
     }
   }, [weeks, selectedWeekId])
 
-  const selectedWeek = useMemo(() => weeks.find(w => w.id === (selectedWeekId || weeks[0]?.id)), [weeks, selectedWeekId])
+  const selectedWeek = useMemo(() => (weeks as Week[]).find(w => w.id === (selectedWeekId || weeks[0]?.id)), [weeks, selectedWeekId])
 
   // 2. Fetch analytics
   const { data: analytics, isLoading } = useQuery({
@@ -117,7 +118,7 @@ export function Analytics() {
               onChange={(e) => setSelectedWeekId(e.target.value)}
               className="bg-transparent border-none text-sm text-dark-200 focus:ring-0 p-0 cursor-pointer hover:text-white transition-colors"
             >
-              {weeks.map(w => (
+              {(weeks as Week[]).map(w => (
                 <option key={w.id} value={w.id} className="bg-dark-800">
                   Semana {format(new Date(w.startDate), 'dd/MM/yyyy')} - {format(new Date(w.endDate), 'dd/MM/yyyy')}
                 </option>

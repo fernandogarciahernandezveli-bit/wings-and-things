@@ -88,8 +88,8 @@ export interface ParsedItem {
   productId: string
   product: Product
   quantity: number
-  rawText: string
-  confidence: number
+  rawText?: string
+  confidence?: number
 }
 
 export interface ParseResult {

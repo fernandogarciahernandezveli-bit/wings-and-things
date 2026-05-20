@@ -3,7 +3,7 @@ import { Plus, Trash2, Edit3, Package, Users, Calendar, AlertCircle, ChevronRigh
 import { clsx } from 'clsx'
 import { Badge, Modal } from '@/components/ui'
 import { useAuthStore, useUIStore } from '@/store'
-import { productsApi, weeksApi, usersApi, comandasApi } from '@/lib/api'
+import { productsApi, weeksApi, usersApi, comandasApi, inventoryApi } from '@/lib/api'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Product, ProductCategory, UserRole } from '@/types'
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay } from 'date-fns'
@@ -41,7 +41,7 @@ export function Settings() {
   const [newWeekDates, setNewWeekDates] = useState({
     startDate: format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'),
     endDate: format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-    status: 'open' as const
+    status: 'open' as 'open' | 'closed'
   })
 
   // Week Edit state
