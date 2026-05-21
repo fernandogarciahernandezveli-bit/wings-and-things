@@ -76,10 +76,13 @@ export function Comandas() {
       setUnrecognized([])
       setIsConfirmModalOpen(false)
       addNotification({ type: 'success', message: 'Comanda guardada exitosamente' })
+      
+      // Global invalidation for immediate sync
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
     },
     onError: (error: any) => {

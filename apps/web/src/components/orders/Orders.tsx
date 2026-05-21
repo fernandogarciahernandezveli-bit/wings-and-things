@@ -70,10 +70,14 @@ export function Orders() {
       setOverrides({})
       setIsConfirmModalOpen(false)
       setExtraReason('')
+      
+      // Professional global invalidation
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'history'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
       refetchHistory()
     },

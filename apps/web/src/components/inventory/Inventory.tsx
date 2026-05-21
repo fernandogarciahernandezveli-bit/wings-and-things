@@ -73,13 +73,12 @@ export function Inventory() {
   const updateInitialMutation = useMutation({
     mutationFn: (data: any) => inventoryApi.updateInitial(data.weekId, data.items),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
-      addNotification({ type: 'success', message: 'Stock inicial actualizado' })
+      addNotification({ type: 'success', message: 'Inventario inicial actualizado' })
       setEditItem(null)
     }
   })
@@ -87,13 +86,12 @@ export function Inventory() {
   const updateFinalMutation = useMutation({
     mutationFn: (data: any) => inventoryApi.updateFinal(data.weekId, data.items),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
-      addNotification({ type: 'success', message: 'Stock final actualizado' })
+      addNotification({ type: 'success', message: 'Inventario final actualizado' })
       setEditItem(null)
     }
   })
@@ -101,12 +99,14 @@ export function Inventory() {
   const addEntryMutation = useMutation({
     mutationFn: (data: any) => inventoryApi.registerEntry(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['inventory', selectedWeek?.id] })
+      // Invalidate everything related to stock and weeks
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['movements'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
+      
       addNotification({ type: 'success', message: 'Entrada registrada correctamente' })
       setIsEntryModalOpen(false)
       setEntryForm({ productId: '', quantity: 0, note: '' })

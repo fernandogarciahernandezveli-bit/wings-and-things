@@ -86,12 +86,15 @@ export function Settings() {
       ? productsApi.update(editProduct.id, data) 
       : productsApi.create(data),
     onSuccess: () => {
+      // Invalidate ALL related queries to ensure global synchronization
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
+      
       addNotification({ type: 'success', message: 'Producto guardado correctamente' })
       setEditProduct(null)
       setNewProduct(false)
@@ -129,13 +132,16 @@ export function Settings() {
   const deleteProductMutation = useMutation({
     mutationFn: (id: string) => productsApi.delete(id),
     onSuccess: () => {
+      // Invalidate ALL related queries to ensure global synchronization
       queryClient.invalidateQueries({ queryKey: ['products'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details'] })
-      addNotification({ type: 'info', message: 'Producto desactivado' })
+      
+      addNotification({ type: 'success', message: 'Producto desactivado' })
     }
   })
 
@@ -152,45 +158,27 @@ export function Settings() {
     }
   })
 
-  const deleteWeekMutation = useMutation({
-    mutationFn: (id: string) => weeksApi.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weeks'] })
-      queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
-      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      addNotification({ type: 'success', message: 'Semana eliminada correctamente' })
-    },
-    onError: (err: any) => {
-      addNotification({ type: 'error', message: err.response?.data?.message || 'No se pudo eliminar la semana' })
-    }
-  })
-
   const closeWeekMutation = useMutation({
     mutationFn: (id: string) => weeksApi.close(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
-      queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      addNotification({ type: 'info', message: 'Semana cerrada' })
+      addNotification({ type: 'success', message: 'Semana cerrada correctamente' })
     }
   })
 
-  const deleteComandaMutation = useMutation({
-    mutationFn: (id: string) => comandasApi.delete(id),
+  const deleteWeekMutation = useMutation({
+    mutationFn: (id: string) => weeksApi.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weeks', 'details', selectedWeekForEdit] })
+      queryClient.invalidateQueries({ queryKey: ['weeks'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
-      addNotification({ type: 'success', message: 'Comanda eliminada y stock recalculado' })
-    },
-    onError: (err: any) => {
-      addNotification({ type: 'error', message: 'No se pudo eliminar la comanda' })
+      addNotification({ type: 'success', message: 'Semana eliminada' })
     }
   })
 
@@ -199,13 +187,9 @@ export function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details', selectedWeekForEdit] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
-      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      addNotification({ type: 'success', message: 'Inventario inicial actualizado y stock recalculado' })
-    },
-    onError: (err: any) => {
-      addNotification({ type: 'error', message: err.response?.data?.message || 'Error al actualizar inventario inicial' })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      addNotification({ type: 'success', message: 'Stock inicial actualizado' })
     }
   })
 
@@ -215,13 +199,20 @@ export function Settings() {
       queryClient.invalidateQueries({ queryKey: ['weeks', 'details', selectedWeekForEdit] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['analytics'] })
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
       queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
-      addNotification({ type: 'success', message: 'Ajuste manual registrado exitosamente' })
+      addNotification({ type: 'success', message: 'Ajuste de inventario aplicado' })
       setAdjustmentForm({ productId: '', newActualStock: 0, note: '' })
-    },
-    onError: (err: any) => {
-      addNotification({ type: 'error', message: err.response?.data?.message || 'Error al registrar ajuste' })
+    }
+  })
+
+  const deleteComandaMutation = useMutation({
+    mutationFn: (id: string) => comandasApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['weeks', 'details', selectedWeekForEdit] })
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['analytics'] })
+      queryClient.invalidateQueries({ queryKey: ['orders', 'recommend'] })
+      addNotification({ type: 'success', message: 'Comanda eliminada correctamente' })
     }
   })
 
