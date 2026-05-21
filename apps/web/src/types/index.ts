@@ -32,6 +32,7 @@ export interface Product {
   shortName: string
   category: ProductCategory
   unit: string
+  unitsPerPackage: number
   isActive: boolean
   aliases: string[]
   createdAt: string

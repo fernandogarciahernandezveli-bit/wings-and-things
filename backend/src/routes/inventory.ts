@@ -196,7 +196,7 @@ inventoryRouter.post('/entry', authenticate, async (req, res, next) => {
     const { weekId, productId, quantity, note } = z.object({
       weekId: z.string(),
       productId: z.string(),
-      quantity: z.number().positive(),
+      quantity: z.coerce.number().positive(),
       note: z.string().optional(),
     }).parse(req.body)
 

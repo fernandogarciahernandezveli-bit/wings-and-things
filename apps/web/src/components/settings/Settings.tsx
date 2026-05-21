@@ -225,7 +225,7 @@ export function Settings() {
       shortName: p.shortName, 
       category: p.category, 
       unit: p.unit, 
-      unitsPerPackage: (p as any).unitsPerPackage || 1,
+      unitsPerPackage: p.unitsPerPackage || 1,
       aliases: p.aliases.join(', '),
       initialStock: 0 // Reset for edit mode, only used if specifically changed
     })
@@ -238,12 +238,25 @@ export function Settings() {
       return
     }
     
-    // Only send initialStock if it's a new product (editProduct is null)
-    const dataToSend = editProduct 
-      ? { ...form, aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean) }
-      : { ...form, initialStock: form.initialStock, aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean) }
+    // Prepare payload
+    const payload: any = {
+      name: form.name.trim(),
+      shortName: form.shortName.trim(),
+      category: form.category,
+      unit: form.unit.trim(),
+      unitsPerPackage: Number(form.unitsPerPackage),
+      aliases: form.aliases.split(',').map((a) => a.trim()).filter(Boolean),
+    }
+
+    // Only send initialStock if it's a new product or explicitly set
+    if (!editProduct) {
+      payload.initialStock = Number(form.initialStock)
+    } else if (form.initialStock !== 0) {
+      // If editing and stock is not 0, user probably wants to adjust it
+      payload.initialStock = Number(form.initialStock)
+    }
     
-    saveProductMutation.mutate(dataToSend)
+    saveProductMutation.mutate(payload)
   }
 
   const handleDeleteProduct = (id: string) => {
@@ -336,7 +349,7 @@ export function Settings() {
                         <Badge variant="gray">{p.category}</Badge>
                       </td>
                       <td className="px-5 py-3 text-sm text-dark-200">{p.unit}</td>
-                      <td className="px-5 py-3 text-sm text-accent font-mono">{(p as any).unitsPerPackage || 1}</td>
+                      <td className="px-5 py-3 text-sm text-accent font-mono">{p.unitsPerPackage || 1}</td>
                       <td className="px-5 py-3 text-xs text-dark-300 max-w-xs truncate">
                         {p.aliases.join(', ')}
                       </td>

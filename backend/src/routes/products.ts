@@ -9,11 +9,11 @@ const productSchema = z.object({
   name: z.string().min(1),
   shortName: z.string().min(1),
   category: z.enum(['refrescos', 'aguas', 'cervezas', 'licores', 'jugos', 'mixers', 'otros']),
-  unit: z.string().min(1), // Fixed: must be at least 1 char, not number
-  unitsPerPackage: z.number().int().min(1).default(1),
+  unit: z.string().min(1),
+  unitsPerPackage: z.coerce.number().int().min(1).default(1),
   aliases: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
-  initialStock: z.number().min(0).optional(), // Optional: only for new products or specific adjustments
+  initialStock: z.coerce.number().min(0).optional(),
 })
 
 productsRouter.get('/', async (_req, res, next) => {
